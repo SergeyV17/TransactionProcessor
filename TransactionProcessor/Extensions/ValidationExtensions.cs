@@ -1,10 +1,24 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace TransactionProcessor.Extensions;
 
 public static class ValidationExtensions
 {
+    private static readonly string[] Formats = 
+    {
+        "MM/dd/yyyy hh:mm:ss tt",
+        "yyyy-MM-dd hh:mm:ss",
+        "yyyy.MM.dd hh:mm:ss",
+        "yyyy,MM,dd hh:mm:ss",
+        "dd.MM.yyyy hh:mm:ss",
+        "dd-MM-yyyy hh:mm:ss",
+        "dd,MM,yyyy hh:mm:ss",
+        "dd/MM/yyyy hh:mm:ss",
+        "yyyy-MM-ddTHH:mm:sszz",
+    };
+    
     public static T GetValueIfValid<T>(this string? input) where T : struct
     {
         var handledInput = input?.Trim();
@@ -14,37 +28,21 @@ public static class ValidationExtensions
         }
 
         return Convert<T>(handledInput);
-        
-        // var type = typeof(T);
-        // var dictionary = new Dictionary<Type, Func<string, T>> 
-        // {
-        //     [typeof(int)] = Convert<T>,
-        // };
-        //
-        // var action = dictionary[type];
-        // var result = action(handledInput);
-        //
-        // return result;
     }
     
-    private static T Convert<T>(string input)
+    private static T Convert<T>(string input) where T : struct
     {
         var converter = TypeDescriptor.GetConverter(typeof(T));
-        if(converter is not null && converter.IsValid(input))
+        if (converter is DateTimeConverter)
+        {
+            DateTime.TryParseExact(input, Formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
+            return (T)(object)dateTime;
+        }
+        if(converter?.IsValid(input) is true)
         {
             return (T)converter.ConvertFromString(input)!;
         }
         
         throw new ValidationException("Некорректный формат значения.");
     }
-    
-    // private static T ValidateInteger<T>(string s)
-    // {
-    //     if (typeof(T).TryParse(s, out var id))
-    //     {
-    //         return (T)Convert.ChangeType(id, typeof(T));
-    //     }
-    //
-    //     throw new ValidationException("Некорректный формат числового значения.");
-    // }
 }

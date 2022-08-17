@@ -4,6 +4,7 @@ using DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using TransactionProcessor.Services;
 using TransactionProcessor.Services.Interfaces;
 
@@ -39,6 +40,10 @@ namespace TransactionProcessor
                     services.AddSingleton<IPrintService, PrintService>();
                     services.AddSingleton<IAppCommandsService, AppCommandsService>();
                     services.AddSingleton<IAppRunner, AppRunner>();
+                })
+                .ConfigureLogging((_, logging) =>
+                {
+                    logging.ClearProviders();
                 })
                 .UseConsoleLifetime()
                 .Build();

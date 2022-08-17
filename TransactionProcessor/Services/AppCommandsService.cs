@@ -8,7 +8,6 @@ namespace TransactionProcessor.Services;
 
 public class AppCommandsService : IAppCommandsService
 {
-    // TODO по идее здесь можно использовать DTO, а не сразу DBO и репозиторий переместить на другой уровень
     private readonly IPrintService _printService;
     private readonly ITransactionRepository _repository;
 
@@ -42,30 +41,24 @@ public class AppCommandsService : IAppCommandsService
         };
 
         await _repository.AddTransactionAsync(transaction);
-        _printService.PrintMessage("[ОК]", onOneLine: true, ConsoleColor.Green);
+        _printService.PrintMessage("[ОК]", onOneLine: false, ConsoleColor.Green);
     }
 
     public async Task GetTransactionCommandAsync()
     {
-        Console.WriteLine("Введите id: ");
+        _printService.PrintMessage("Введите id: ");
         var input = Console.ReadLine();
-
-        if (int.TryParse(input, out var id))
+        var id = input.GetValueIfValid<int>();
+        
+        var transaction = await _repository.GetTransactionByIdAsync(id);
+        if (transaction is null)
         {
-            var transaction = await _repository.GetTransactionByIdAsync(id);
-            if (transaction is null)
-            {
-                Console.WriteLine($"Транзакция по заданному id: {id} не найдена.");
-                return;
-            }
-
-            var transactionJson = JsonSerializer.Serialize(transaction);
-            Console.WriteLine(transactionJson);
+            _printService.PrintWarningMessage($"Транзакция по заданному id: {id} не найдена.");
+            return;
         }
-        else
-        {
-            Console.WriteLine("Введен некорректный id.");
-        }
+        
+        var transactionJson = JsonSerializer.Serialize(transaction);
+        _printService.PrintMessage(transactionJson, onOneLine: false, ConsoleColor.Green);
     }
 
     public void ExitAppCommand()
@@ -73,39 +66,3 @@ public class AppCommandsService : IAppCommandsService
         IsExitReceived = true;
     }
 }
-
-
-        
-// old implementation
-// if (int.TryParse(input, out var id))
-// {
-//     transaction.Id = id;
-// }
-// else
-// {
-//     _printService.PrintMessage("Введен некорректный id.", onOneLine: true);
-//     return;
-// }
-
-
-// if (DateTime.TryParse(input, out var dateTime))
-// {
-//     transaction.TransactionDate = dateTime;
-// }
-// else
-// {
-//     _printService.PrintMessage("Введена некорректная дата.", onOneLine: true, ConsoleColor.DarkRed);
-//     return;
-// }
-
-// _printService.PrintMessage("Введите сумму: ", onOneLine: true);
-// input = Console.ReadLine();
-// if (decimal.TryParse(input, out var amount))
-// {
-//     transaction.Amount = amount;
-// }
-// else
-// {
-//     _printService.PrintMessage("Введена некорректная сумма.", onOneLine: true, ConsoleColor.DarkRed);
-//     return;
-// }
