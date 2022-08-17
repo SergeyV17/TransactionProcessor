@@ -10,13 +10,14 @@ public static class ValidationExtensions
     {
         "MM/dd/yyyy hh:mm:ss tt",
         "yyyy-MM-ddTHH\\:mm\\:ss.fffffffzzz",
-        "yyyy-MM-dd hh:mm:ss",
-        "yyyy.MM.dd hh:mm:ss",
-        "yyyy,MM,dd hh:mm:ss",
-        "dd.MM.yyyy hh:mm:ss",
-        "dd-MM-yyyy hh:mm:ss",
-        "dd,MM,yyyy hh:mm:ss",
-        "dd/MM/yyyy hh:mm:ss",
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy.MM.dd HH:mm:ss",
+        "yyyy,MM,dd HH:mm:ss",
+        "dd.MM.yyyy HH:mm:ss",
+        "yyyy.MM.dd HH:mm:ss",
+        "dd-MM-yyyy HH:mm:ss",
+        "dd,MM,yyyy HH:mm:ss",
+        "dd/MM/yyyy HH:mm:ss",
         "yyyy-MM-ddTHH:mm:sszz",
         "yyyy-MM-dd",
         "yyyy.MM.dd",
@@ -46,7 +47,7 @@ public static class ValidationExtensions
         {
             case DateTimeConverter:
             {
-                DateTime.TryParseExact(input, DateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
+                DateTime.TryParseExact(input, DateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out var dateTime);
 
                 if (dateTime != DateTime.MinValue)
                 {
