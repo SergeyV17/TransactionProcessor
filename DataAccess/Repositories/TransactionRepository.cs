@@ -14,10 +14,21 @@ public class TransactionRepository : ITransactionRepository
         _dbContextFactory = dbContextFactory;
     }
     
-    public async Task AddTransactionAsync(Transaction transaction)
+    public async Task UpsertTransactionAsync(Transaction transaction)
     {
         await using var appDbContext = await _dbContextFactory.CreateDbContextAsync();
-        await appDbContext.AddAsync(transaction);
+        
+        var existingTransaction = await appDbContext.Transactions.FirstOrDefaultAsync(t => t.Id == transaction.Id);
+        if (existingTransaction is not null)
+        {
+            existingTransaction.TransactionDate = transaction.TransactionDate;
+            existingTransaction.Amount = transaction.Amount;
+        }
+        else
+        {
+            await appDbContext.AddAsync(transaction);
+        }
+        
         await appDbContext.SaveChangesAsync();
     }
 

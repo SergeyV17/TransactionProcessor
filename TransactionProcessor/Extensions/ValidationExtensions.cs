@@ -6,9 +6,10 @@ namespace TransactionProcessor.Extensions;
 
 public static class ValidationExtensions
 {
-    private static readonly string[] Formats = 
+    private static readonly string[] DateTimeFormats = 
     {
         "MM/dd/yyyy hh:mm:ss tt",
+        "yyyy-MM-ddTHH\\:mm\\:ss.fffffffzzz",
         "yyyy-MM-dd hh:mm:ss",
         "yyyy.MM.dd hh:mm:ss",
         "yyyy,MM,dd hh:mm:ss",
@@ -17,6 +18,14 @@ public static class ValidationExtensions
         "dd,MM,yyyy hh:mm:ss",
         "dd/MM/yyyy hh:mm:ss",
         "yyyy-MM-ddTHH:mm:sszz",
+        "yyyy-MM-dd",
+        "yyyy.MM.dd",
+        "yyyy,MM,dd",
+        "dd/MM/yyyy",
+        "dd-MM-yyyy",
+        "dd-MM-yyyy",
+        "MM/dd/yyyy",
+        "dd.MM.yyyy",
     };
     
     public static T GetValueIfValid<T>(this string? input) where T : struct
@@ -33,11 +42,29 @@ public static class ValidationExtensions
     private static T Convert<T>(string input) where T : struct
     {
         var converter = TypeDescriptor.GetConverter(typeof(T));
-        if (converter is DateTimeConverter)
+        switch (converter)
         {
-            DateTime.TryParseExact(input, Formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
-            return (T)(object)dateTime;
+            case DateTimeConverter:
+            {
+                DateTime.TryParseExact(input, DateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
+
+                if (dateTime != DateTime.MinValue)
+                {
+                    return (T)(object)dateTime;
+                }
+                throw new ValidationException("Некорректный формат даты.");
+            }
+            case DecimalConverter:
+            {
+                decimal.TryParse(input, out var amount);
+                if (amount >= 0)
+                {
+                    return (T)(object)amount;
+                }
+                throw new ValidationException("Некорректный формат суммы.");
+            }
         }
+
         if(converter?.IsValid(input) is true)
         {
             return (T)converter.ConvertFromString(input)!;

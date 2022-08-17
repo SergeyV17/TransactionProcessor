@@ -40,7 +40,7 @@ public class AppCommandsService : IAppCommandsService
             Amount = amount
         };
 
-        await _repository.AddTransactionAsync(transaction);
+        await _repository.UpsertTransactionAsync(transaction);
         _printService.PrintMessage("[ОК]", onOneLine: false, ConsoleColor.Green);
     }
 

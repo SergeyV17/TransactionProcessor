@@ -23,7 +23,7 @@ public class AppRunner : IAppRunner
             try
             {
                 _printService.PrintMessage("Введите команду: ");
-                var input = Console.ReadLine();
+                var input = Console.ReadLine()?.Trim();
                 switch (input)
                 {
                     case UserCommands.ADD_TRANSACTION_COMMAND:
