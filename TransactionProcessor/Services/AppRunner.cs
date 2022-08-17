@@ -22,7 +22,7 @@ public class AppRunner : IAppRunner
         {
             try
             {
-                _printService.PrintEnterCommandMessage();
+                _printService.PrintMessage("Введите команду: ");
                 var input = Console.ReadLine();
                 switch (input)
                 {
@@ -39,25 +39,22 @@ public class AppRunner : IAppRunner
                         break;
 
                     default:
-                        _printService.PrintInvalidInputMessage();
+                        _printService.PrintWarningMessage("Некорректный ввод. Не удалось распознать команду.");
                         break;
                 }
             }
             catch (ValidationException ex)
             {
-                _printService.PrintMessage(ex.Message, false, ConsoleColor.DarkRed);
+                _printService.PrintErrorMessage(ex.Message);
             }
             catch (Exception ex)
             {
-                _printService.PrintMessage(
+                _printService.PrintErrorMessage(
                     "Возникло необработанное исключение, программа будет закрыта, " +
                     "обратитесь в техническую поддержку за возможным решением.\r\n" +
                     "Детали ошибки:\r\n" +
-                    $"{ex}",
-                    false,
-                    ConsoleColor.DarkRed);
+                    $"{ex}");
                 _appCommandsService.ExitAppCommand();
-                Console.ReadKey();
             }
         }
         while (!_appCommandsService.IsExitReceived);

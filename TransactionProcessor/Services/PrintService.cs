@@ -16,14 +16,14 @@ public class PrintService : IPrintService
             ConsoleColor.Green);
     }
 
-    public void PrintInvalidInputMessage()
+    public void PrintWarningMessage(string message)
     {
-        PrintMessage("Invalid input. Can't recognize command", false, ConsoleColor.DarkYellow);
+        PrintMessage(message, false, ConsoleColor.DarkYellow);
     }
 
-    public void PrintEnterCommandMessage()
+    public void PrintErrorMessage(string message)
     {
-        PrintMessage("Введите команду: ");
+        PrintMessage(message, false, ConsoleColor.DarkRed);
     }
 
     public void PrintMessage(string message, bool onOneLine, ConsoleColor color)
